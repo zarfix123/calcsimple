@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Function Calculator</title>
+    <style>
+        /* Basic reset and variables */
+        :root {
+            --primary-color: #2196f3;
+            --secondary-color: #f44336;
+            --tertiary-color: #9575cd;
+            --text-color: #212121;
+            --bg-color: #f5f5f5;
+            --card-background: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            transition: background-color 0.3s ease;
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dark-theme {
+            background-color: #263238;
+            --text-color: #eceff1;
+            --card-background: #37474F;
+        }
+        
+        /* Container styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        /* Tab styles */
+        .tabs {
+            display: flex;
+            background-color: var(--card-background);
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            color: var(--text-color);
+            font-weight: bold;
+        }
+        
+        .tab:hover {
+            background-color: rgba(33, 150, 243, 0.1);
+        }
+        
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* Calculator styles */
+        .calculator-container {
+            background-color: var(--card-background);
+            border-radius: 0 0 8px 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .display {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) inset;
+        }
+        
+        #history {
+            font-size: 16px;
+            color: #9e9e9e;
+            min-height: 24px;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        #current {
+            font-size: 36px;
+            font-weight: bold;
+            min-height: 50px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: var(--card-background);
+            color: var(--text-color);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .button.clicked {
+            transform: scale(0.95);
+        }
+        
+        .btn-number {
+            background-color: var(--card-background);
+        }
+        
+        .btn-operation {
+            background-color: #e0e0e0;
+        }
+        
+        .dark-theme .btn-operation {
+            background-color: #455A64;
+        }
+        
+        .btn-function {
+            background-color: var(--tertiary-color);
+            color: white;
+        }
+        
+        .btn-clear {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-equal {
+            background-color: var(--primary-color);
+            color: white;
+            grid-column: span 2;
+        }
+        
+        /* Graph panel styles */
+        .graph-panel {
+            display: none;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .function-input-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+        
+        .function-input-container label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .function-input {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: var(--card-background);
+            color: var(--text-color);
+            font-size: 16px;
+            font-family: 'Arial', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .function-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+        }
+        
+        .range-inputs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .range-input-container {
+            flex: 1;
+        }
+        
+        .graph-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .plot-button, .clear-button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+        }
+        
+        .plot-button {
+            background-color: #2196f3;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .clear-button {
+            background-color: var(--secondary-color);
+        }
+        
+        .plot-button:hover, .clear-button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+        
+        .plot-button:active, .clear-button:active {
+            transform: translateY(1px);
+        }
+        
+        .graph-image-container {
+            width: 100%;
+            min-height: 350px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .dark-theme .graph-image-container {
+            background-color: #263238;
+        }
+        
+        .graph-image {
+            max-width: 100%;
+            max-height: 500px;
+            display: none;
+        }
+        
+        .empty-graph-placeholder {
+            color: #9e9e9e;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+        
+        /* Periodic table styles */
+        .periodic-panel {
+            display: none;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            gap: 4px;
+            margin-top: 20px;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        .element {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 4px;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+            color: white;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .element:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .element .number {
+            font-size: 0.6rem;
+            text-align: left;
+        }
+        
+        .element .symbol {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 3px 0;
+        }
+        
+        .element .name {
+            font-size: 0.55rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Element category colors */
+        .nonmetal { background-color: #4CAF50; }
+        .noble-gas { background-color: #9C27B0; }
+        .alkali-metal { background-color: #F44336; }
+        .alkaline-earth { background-color: #FF9800; }
+        .metalloid { background-color: #8BC34A; }
+        .halogen { background-color: #009688; }
+        .post-transition { background-color: #607D8B; }
+        .transition-metal { background-color: #FF5722; }
+        .lanthanide { background-color: #3F51B5; }
+        .actinide { background-color: #2196F3; }
+        
+        /* Element details popup */
+        .element-details {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .dark-theme .element-details {
+            background-color: #37474F;
+            color: #eceff1;
+        }
+        
+        .element-details.active {
+            display: block;
+        }
+        
+        .element-details h2 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .element-details-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .element-details-content {
+            margin-top: 15px;
+        }
+        
+        .element-details-property {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .element-details-property-name {
+            font-weight: bold;
+        }
+        
+        .element-details-symbol {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .keypad {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            
+            .button {
+                padding: 12px 0;
+                font-size: 16px;
+            }
+            
+            #current {
+                font-size: 28px;
+            }
+            
+            .range-inputs {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .periodic-table {
+                grid-template-columns: repeat(9, 1fr);
+                grid-template-rows: repeat(18, 1fr);
+            }
+            
+            .element {
+                font-size: 0.7rem;
+            }
+            
+            .element .symbol {
+                font-size: 1rem;
+            }
+            
+            .element .number {
+                font-size: 0.5rem;
+            }
+        }
+        
+        /* Add these CSS rules to fix the button grid */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .additional-functions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        /* Fix the periodic table display */
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            gap: 4px;
+            margin-top: 20px;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        .element {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 4px;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+            color: white;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        /* Element category colors */
+        .nonmetal { background-color: #4CAF50; }
+        .noble-gas { background-color: #9C27B0; }
+        .alkali-metal { background-color: #F44336; }
+        .alkaline-earth { background-color: #FF9800; }
+        .metalloid { background-color: #8BC34A; }
+        .halogen { background-color: #009688; }
+        .post-transition { background-color: #607D8B; }
+        .transition-metal { background-color: #FF5722; }
+        .lanthanide { background-color: #3F51B5; }
+        .actinide { background-color: #2196F3; }
+        
+        /* Periodic table specific styles */
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .element {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 4px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+            color: white;
+            font-size: 0.8em;
+        }
+        
+        .element:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .element .number {
+            font-size: 0.7em;
+            text-align: left;
+        }
+        
+        .element .symbol {
+            font-size: 1.4em;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .element .name {
+            font-size: 0.7em;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Category colors */
+        .nonmetal { background-color: #4CAF50; }
+        .noble-gas { background-color: #9C27B0; }
+        .alkali-metal { background-color: #F44336; }
+        .alkaline-earth { background-color: #FF9800; }
+        .metalloid { background-color: #8BC34A; }
+        .halogen { background-color: #009688; }
+        .post-transition { background-color: #607D8B; }
+        .transition-metal { background-color: #FF5722; }
+        .lanthanide { background-color: #3F51B5; }
+        .actinide { background-color: #2196F3; }
+        
+        /* Element details popup */
+        .element-details {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .element-details h2 {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .element-details-title {
+            display: flex;
+            align-items: center;
+        }
+        
+        .element-details-symbol {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5em;
+            margin-right: 15px;
+        }
+        
+        .element-details-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .element-details-property {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .element-details-property-name {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Multi-Function Calculator</h1>
+            <div class="theme-toggle">
+                <label class="switch">
+                    <input type="checkbox" id="theme-switch">
+                    <span class="slider round"></span>
+                </label>
+                <span id="theme-label">Light Mode</span>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="calculator">Calculator</div>
+            <div class="tab" data-tab="graph">Graphing</div>
+            <div class="tab" data-tab="periodic">Periodic Table</div>
+        </div>
+        
+        <!-- Calculator Panel -->
+        <div class="calculator-container">
+            <div class="display">
+                <div id="history"></div>
+                <div id="current">0</div>
+            </div>
+            
+            <div class="buttons">
+                <div class="button btn-clear" data-action="clear">AC</div>
+                <div class="button btn-function" data-action="delete">⌫</div>
+                <div class="button btn-function" data-action="percent">%</div>
+                <div class="button btn-function" data-action="divide">÷</div>
+                
+                <div class="button btn-number" data-number="7">7</div>
+                <div class="button btn-number" data-number="8">8</div>
+                <div class="button btn-number" data-number="9">9</div>
+                <div class="button btn-function" data-action="multiply">×</div>
+                
+                <div class="button btn-number" data-number="4">4</div>
+                <div class="button btn-number" data-number="5">5</div>
+                <div class="button btn-number" data-number="6">6</div>
+                <div class="button btn-function" data-action="subtract">-</div>
+                
+                <div class="button btn-number" data-number="1">1</div>
+                <div class="button btn-number" data-number="2">2</div>
+                <div class="button btn-number" data-number="3">3</div>
+                <div class="button btn-function" data-action="add">+</div>
+                
+                <div class="button btn-number" data-number="0">0</div>
+                <div class="button btn-number" data-number=".">.</div>
+                <div class="button btn-function" data-action="brackets">()</div>
+                <div class="button btn-equal" data-action="calculate">=</div>
+            </div>
+            
+            <div class="additional-functions">
+                <div class="button btn-function" data-action="sin">sin</div>
+                <div class="button btn-function" data-action="cos">cos</div>
+                <div class="button btn-function" data-action="tan">tan</div>
+                <div class="button btn-function" data-action="sqrt">√</div>
+                <div class="button btn-function" data-action="log">log</div>
+                <div class="button btn-function" data-action="ln">ln</div>
+                <div class="button btn-function" data-action="power">x^</div>
+                <div class="button btn-function" data-action="factorial">x!</div>
+            </div>
+        </div>
+        
+        <!-- Graph Panel -->
+        <div class="graph-panel" style="display: none;">
+            <h2>Graphing Calculator</h2>
+            
+            <div class="function-input-container">
+                <label for="function-input">Function f(x):</label>
+                <input type="text" id="function-input" class="function-input" value="sin(x)" placeholder="Enter a function, e.g. x^2, 2*x+1, sin(x)">
+            </div>
+            
+            <div class="range-inputs">
+                <div class="range-input-container">
+                    <label for="x-min">X Min:</label>
+                    <input type="text" id="x-min" class="function-input" value="-10">
+                </div>
+                <div class="range-input-container">
+                    <label for="x-max">X Max:</label>
+                    <input type="text" id="x-max" class="function-input" value="10">
+                </div>
+            </div>
+            
+            <div class="graph-controls">
+                <button id="plot-button" class="plot-button">Plot Graph</button>
+                <button id="clear-graph" class="clear-button">Clear</button>
+            </div>
+            
+            <div class="graph-image-container">
+                <img id="graph-image" class="graph-image">
+                <div id="empty-graph-placeholder" class="empty-graph-placeholder">
+                    Enter a function and click "Plot Graph" to display the graph
+                </div>
+            </div>
+        </div>
+        
+        <!-- Periodic Table Panel -->
+        <div class="periodic-panel" style="display: none;">
+            <h2>Periodic Table of Elements</h2>
+            <div class="periodic-table">
+                <!-- Will be filled by JavaScript -->
+            </div>
+            
+            <div class="element-details" style="display: none;">
+                <h2>
+                    <div class="element-details-title">
+                        <span class="element-details-symbol alkali-metal">H</span>
+                        Hydrogen
+                    </div>
+                    <button class="element-details-close">&times;</button>
+                </h2>
+                <div class="element-details-content">
+                    <div class="element-details-property">
+                        <span class="element-details-property-name">Atomic Number:</span>
+                        <span class="element-details-atomic-number">1</span>
+                    </div>
+                    <div class="element-details-property">
+                        <span class="element-details-property-name">Atomic Mass:</span>
+                        <span class="element-details-atomic-mass">1.008 u</span>
+                    </div>
+                    <div class="element-details-property">
+                        <span class="element-details-property-name">Electron Configuration:</span>
+                        <span class="element-details-electron-config">1s¹</span>
+                    </div>
+                    <div class="element-details-property">
+                        <span class="element-details-property-name">Category:</span>
+                        <span class="element-details-category">Nonmetal</span>
+                    </div>
+                    <div class="element-details-property">
+                        <span class="element-details-property-name">State at Room Temp:</span>
+                        <span class="element-details-state">Gas</span>
+                    </div>
+                    <div class="element-details-property">
+                        <span class="element-details-property-name">Melting Point:</span>
+                        <span class="element-details-melting">-259.16 °C</span>
+                    </div>
+                    <div class="element-details-property">
+                        <span class="element-details-property-name">Boiling Point:</span>
+                        <span class="element-details-boiling">-252.87 °C</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // The Periodic Table Elements Data
+        const elements = [
+            {symbol: "H", name: "Hydrogen", number: 1, category: "nonmetal", mass: 1.008, electron: "1s¹", state: "Gas", melting: -259.16, boiling: -252.87, position: {row: 1, col: 1}},
+            {symbol: "He", name: "Helium", number: 2, category: "noble-gas", mass: 4.0026, electron: "1s²", state: "Gas", melting: -272.2, boiling: -268.93, position: {row: 1, col: 18}},
+            
+            // Row 2
+            {symbol: "Li", name: "Lithium", number: 3, category: "alkali-metal", mass: 6.94, electron: "[He]2s¹", state: "Solid", melting: 180.54, boiling: 1342, position: {row: 2, col: 1}},
+            {symbol: "Be", name: "Beryllium", number: 4, category: "alkaline-earth", mass: 9.0122, electron: "[He]2s²", state: "Solid", melting: 1287, boiling: 2470, position: {row: 2, col: 2}},
+            {symbol: "B", name: "Boron", number: 5, category: "metalloid", mass: 10.81, electron: "[He]2s²2p¹", state: "Solid", melting: 2075, boiling: 4000, position: {row: 2, col: 13}},
+            {symbol: "C", name: "Carbon", number: 6, category: "nonmetal", mass: 12.011, electron: "[He]2s²2p²", state: "Solid", melting: 3550, boiling: 4027, position: {row: 2, col: 14}},
+            {symbol: "N", name: "Nitrogen", number: 7, category: "nonmetal", mass: 14.007, electron: "[He]2s²2p³", state: "Gas", melting: -210.1, boiling: -195.79, position: {row: 2, col: 15}},
+            {symbol: "O", name: "Oxygen", number: 8, category: "nonmetal", mass: 15.999, electron: "[He]2s²2p⁴", state: "Gas", melting: -218.79, boiling: -182.95, position: {row: 2, col: 16}},
+            {symbol: "F", name: "Fluorine", number: 9, category: "halogen", mass: 18.998, electron: "[He]2s²2p⁵", state: "Gas", melting: -219.67, boiling: -188.11, position: {row: 2, col: 17}},
+            {symbol: "Ne", name: "Neon", number: 10, category: "noble-gas", mass: 20.180, electron: "[He]2s²2p⁶", state: "Gas", melting: -248.59, boiling: -246.08, position: {row: 2, col: 18}},
+            
+            // Row 3
+            {symbol: "Na", name: "Sodium", number: 11, category: "alkali-metal", mass: 22.990, electron: "[Ne]3s¹", state: "Solid", melting: 97.72, boiling: 883, position: {row: 3, col: 1}},
+            {symbol: "Mg", name: "Magnesium", number: 12, category: "alkaline-earth", mass: 24.305, electron: "[Ne]3s²", state: "Solid", melting: 650, boiling: 1090, position: {row: 3, col: 2}},
+            {symbol: "Al", name: "Aluminum", number: 13, category: "post-transition", mass: 26.982, electron: "[Ne]3s²3p¹", state: "Solid", melting: 660.32, boiling: 2519, position: {row: 3, col: 13}},
+            {symbol: "Si", name: "Silicon", number: 14, category: "metalloid", mass: 28.085, electron: "[Ne]3s²3p²", state: "Solid", melting: 1414, boiling: 3265, position: {row: 3, col: 14}},
+            {symbol: "P", name: "Phosphorus", number: 15, category: "nonmetal", mass: 30.974, electron: "[Ne]3s²3p³", state: "Solid", melting: 44.15, boiling: 280.5, position: {row: 3, col: 15}},
+            {symbol: "S", name: "Sulfur", number: 16, category: "nonmetal", mass: 32.06, electron: "[Ne]3s²3p⁴", state: "Solid", melting: 115.21, boiling: 444.72, position: {row: 3, col: 16}},
+            {symbol: "Cl", name: "Chlorine", number: 17, category: "halogen", mass: 35.45, electron: "[Ne]3s²3p⁵", state: "Gas", melting: -101.5, boiling: -34.04, position: {row: 3, col: 17}},
+            {symbol: "Ar", name: "Argon", number: 18, category: "noble-gas", mass: 39.948, electron: "[Ne]3s²3p⁶", state: "Gas", melting: -189.34, boiling: -185.85, position: {row: 3, col: 18}}
+        ];
+        
+        // Add more elements in batches to avoid making the code block too large
+        elements.push(
+            // Row 4
+            {symbol: "K", name: "Potassium", number: 19, category: "alkali-metal", mass: 39.098, electron: "[Ar]4s¹", state: "Solid", melting: 63.38, boiling: 759, position: {row: 4, col: 1}},
+            {symbol: "Ca", name: "Calcium", number: 20, category: "alkaline-earth", mass: 40.078, electron: "[Ar]4s²", state: "Solid", melting: 842, boiling: 1484, position: {row: 4, col: 2}},
+            {symbol: "Sc", name: "Scandium", number: 21, category: "transition-metal", mass: 44.956, electron: "[Ar]3d¹4s²", state: "Solid", melting: 1541, boiling: 2830, position: {row: 4, col: 3}},
+            {symbol: "Ti", name: "Titanium", number: 22, category: "transition-metal", mass: 47.867, electron: "[Ar]3d²4s²", state: "Solid", melting: 1668, boiling: 3287, position: {row: 4, col: 4}},
+            {symbol: "V", name: "Vanadium", number: 23, category: "transition-metal", mass: 50.942, electron: "[Ar]3d³4s²", state: "Solid", melting: 1910, boiling: 3407, position: {row: 4, col: 5}},
+            {symbol: "Cr", name: "Chromium", number: 24, category: "transition-metal", mass: 51.996, electron: "[Ar]3d⁵4s¹", state: "Solid", melting: 1907, boiling: 2671, position: {row: 4, col: 6}},
+            {symbol: "Mn", name: "Manganese", number: 25, category: "transition-metal", mass: 54.938, electron: "[Ar]3d⁵4s²", state: "Solid", melting: 1246, boiling: 2061, position: {row: 4, col: 7}},
+            {symbol: "Fe", name: "Iron", number: 26, category: "transition-metal", mass: 55.845, electron: "[Ar]3d⁶4s²", state: "Solid", melting: 1538, boiling: 2861, position: {row: 4, col: 8}}
+        );
+        
+        // Update the DOMContentLoaded function to initialize everything correctly:
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Page loaded, initializing app...");
+            
+            // Set initial display states
+            const calculatorContainer = document.querySelector('.calculator-container');
+            const graphPanel = document.querySelector('.graph-panel');
+            const periodicPanel = document.querySelector('.periodic-panel');
+            
+            if (!calculatorContainer) console.error("Calculator container not found");
+            if (!graphPanel) console.error("Graph panel not found");
+            if (!periodicPanel) console.error("Periodic panel not found");
+            
+            // Make sure panels exist before setting display
+            if (calculatorContainer) calculatorContainer.style.display = 'block';
+            if (graphPanel) graphPanel.style.display = 'none';
+            if (periodicPanel) periodicPanel.style.display = 'none';
+            
+            // Add calculator functionality
+            setupCalculator();
+            
+            // Add graphing functionality
+            setupGraphing();
+            
+            // Add event listeners for the tabs
+            const tabs = document.querySelectorAll('.tab');
+            console.log(`Found ${tabs.length} tabs`);
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabType = this.dataset.tab;
+                    console.log("Tab clicked:", tabType);
+                    
+                    // Update active tab styling
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show/hide panels based on the selected tab
+                    if (calculatorContainer) 
+                        calculatorContainer.style.display = tabType === 'calculator' ? 'block' : 'none';
+                    if (graphPanel)
+                        graphPanel.style.display = tabType === 'graph' ? 'block' : 'none';
+                    if (periodicPanel)
+                        periodicPanel.style.display = tabType === 'periodic' ? 'block' : 'none';
+                    
+                    // Generate the periodic table when that tab is selected
+                    if (tabType === 'periodic') {
+                        console.log("Calling generatePeriodicTable()");
+                        generatePeriodicTable();
+                    }
+                });
+            });
+            
+            // Close element details when clicking the X
+            const closeButton = document.querySelector('.element-details-close');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    const detailsElement = document.querySelector('.element-details');
+                    if (detailsElement) {
+                        detailsElement.style.display = 'none';
+                    }
+                });
+            }
+        });
+        
+        // Add these functions after the element details functions
+        function setupCalculator() {
+            const buttons = document.querySelectorAll('.button');
+            const current = document.getElementById('current');
+            const history = document.getElementById('history');
+            
+            let currentInput = '';
+            let currentCalculation = '';
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Add click animation
+                    this.classList.add('clicked');
+                    setTimeout(() => {
+                        this.classList.remove('clicked');
+                    }, 100);
+                    
+                    const action = this.dataset.action;
+                    const number = this.dataset.number;
+                    
+                    if (number) {
+                        if (currentInput === '0' && number !== '.') {
+                            currentInput = number;
+                        } else {
+                            currentInput += number;
+                        }
+                        current.textContent = currentInput;
+                    }
+                    
+                    if (action === 'calculate') {
+                        try {
+                            // If we have a partial calculation waiting
+                            if (currentCalculation !== '' && currentInput !== '') {
+                                const fullExpression = currentCalculation + currentInput;
+                                history.textContent = fullExpression + ' =';
+                                
+                                // Send to server for calculation
+                                fetch('/calculate', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                    },
+                                    body: `expression=${encodeURIComponent(fullExpression)}`
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.error) {
+                                        current.textContent = 'Error';
+                                        console.error('Calculation error:', data.error);
+                                    } else {
+                                        currentInput = data.result;
+                                        currentCalculation = '';
+                                        current.textContent = currentInput;
+                                    }
+                                })
+                                .catch(error => {
+                                    current.textContent = 'Error';
+                                    console.error('Fetch error:', error);
+                                });
+                            } else {
+                                // Just calculate the current input alone
+                                history.textContent = currentInput + ' =';
+                                
+                                // Send to server for calculation
+                                fetch('/calculate', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                    },
+                                    body: `expression=${encodeURIComponent(currentInput)}`
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.error) {
+                                        current.textContent = 'Error';
+                                        console.error('Calculation error:', data.error);
+                                    } else {
+                                        currentInput = data.result;
+                                        current.textContent = currentInput;
+                                    }
+                                })
+                                .catch(error => {
+                                    current.textContent = 'Error';
+                                    console.error('Fetch error:', error);
+                                });
+                            }
+                        } catch (e) {
+                            current.textContent = 'Error';
+                            console.error('Calculation error:', e);
+                        }
+                    }
+                    
+                    if (action === 'clear') {
+                        currentInput = '0';
+                        currentCalculation = '';
+                        history.textContent = '';
+                        current.textContent = currentInput;
+                    }
+                    
+                    if (action === 'add' || action === 'subtract' || action === 'multiply' || action === 'divide' || 
+                        action === 'percent' || action === 'delete' || action === 'brackets') {
+                        
+                        // Handle operators
+                        if (action === 'add') {
+                            currentCalculation = currentInput + '+';
+                            history.textContent = currentCalculation;
+                            currentInput = '';
+                        }
+                        
+                        if (action === 'subtract') {
+                            currentCalculation = currentInput + '-';
+                            history.textContent = currentCalculation;
+                            currentInput = '';
+                        }
+                        
+                        if (action === 'multiply') {
+                            currentCalculation = currentInput + '*';
+                            history.textContent = currentCalculation;
+                            currentInput = '';
+                        }
+                        
+                        if (action === 'divide') {
+                            currentCalculation = currentInput + '/';
+                            history.textContent = currentCalculation;
+                            currentInput = '';
+                        }
+                        
+                        if (action === 'percent') {
+                            currentInput = (parseFloat(currentInput) / 100).toString();
+                            current.textContent = currentInput;
+                        }
+                        
+                        if (action === 'delete') {
+                            if (currentInput.length > 0) {
+                                currentInput = currentInput.slice(0, -1);
+                                if (currentInput === '') currentInput = '0';
+                                current.textContent = currentInput;
+                            }
+                        }
+                        
+                        if (action === 'brackets') {
+                            // Count open and closed brackets
+                            let openCount = (currentInput.match(/\(/g) || []).length;
+                            let closeCount = (currentInput.match(/\)/g) || []).length;
+                            
+                            if (openCount > closeCount) {
+                                currentInput += ')';
+                            } else {
+                                currentInput += '(';
+                            }
+                            current.textContent = currentInput;
+                        }
+                    }
+                    
+                    // Add this code to handle the function buttons
+                    if (action === 'sin' || action === 'cos' || action === 'tan' || 
+                        action === 'log' || action === 'ln' || action === 'sqrt' || 
+                        action === 'power' || action === 'factorial') {
+                        
+                        if (action === 'sin') {
+                            currentInput += 'sin(';
+                        } else if (action === 'cos') {
+                            currentInput += 'cos(';
+                        } else if (action === 'tan') {
+                            currentInput += 'tan(';
+                        } else if (action === 'log') {
+                            currentInput += 'log10(';
+                        } else if (action === 'ln') {
+                            currentInput += 'log(';
+                        } else if (action === 'sqrt') {
+                            currentInput += 'sqrt(';
+                        } else if (action === 'power') {
+                            currentInput += '^';
+                        } else if (action === 'factorial') {
+                            currentInput += 'factorial(';
+                        }
+                        
+                        current.textContent = currentInput;
+                    }
+                });
+            });
+        }
+        
+        function setupGraphing() {
+            const plotButton = document.getElementById('plot-button');
+            const clearGraphButton = document.getElementById('clear-graph');
+            const functionInput = document.getElementById('function-input');
+            const xMinInput = document.getElementById('x-min');
+            const xMaxInput = document.getElementById('x-max');
+            const graphImage = document.getElementById('graph-image');
+            const emptyGraphPlaceholder = document.getElementById('empty-graph-placeholder');
+            
+            if (!plotButton || !clearGraphButton) {
+                console.error('Graph buttons not found');
+                return;
+            }
+            
+            // Plot the graph
+            plotButton.addEventListener('click', function() {
+                const functionValue = functionInput.value;
+                const xMin = xMinInput.value;
+                const xMax = xMaxInput.value;
+                
+                // Check if inputs are valid
+                if (!functionValue || !xMin || !xMax) {
+                    alert('Please enter a function and x-range values.');
+                    return;
+                }
+                
+                // Send to server for plotting
+                fetch('/plot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `function=${encodeURIComponent(functionValue)}&x_min=${encodeURIComponent(xMin)}&x_max=${encodeURIComponent(xMax)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                    } else {
+                        graphImage.src = `data:image/png;base64,${data.image}`;
+                        graphImage.style.display = 'block';
+                        emptyGraphPlaceholder.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    alert('Error plotting graph. Please try again.');
+                    console.error('Graphing error:', error);
+                });
+            });
+            
+            // Clear the graph
+            clearGraphButton.addEventListener('click', function() {
+                graphImage.src = '';
+                graphImage.style.display = 'none';
+                emptyGraphPlaceholder.style.display = 'block';
+                functionInput.value = 'sin(x)';
+                xMinInput.value = '-10';
+                xMaxInput.value = '10';
+            });
+        }
+
+        // Generate the periodic table from the elements data
+        function generatePeriodicTable() {
+            console.log("Generating periodic table");
+            const periodicTable = document.querySelector('.periodic-table');
+            if (!periodicTable) {
+                console.error("Periodic table container not found");
+                return;
+            }
+            
+            // Clear previous content
+            periodicTable.innerHTML = '';
+            
+            // Create a grid with empty spaces
+            const grid = [];
+            for (let row = 1; row <= 10; row++) {
+                grid[row] = [];
+                for (let col = 1; col <= 18; col++) {
+                    grid[row][col] = null;
+                }
+            }
+            
+            // Check if elements array exists
+            if (!elements || !Array.isArray(elements)) {
+                console.error("Elements data missing or not an array");
+                periodicTable.innerHTML = '<div class="error">Periodic table data not available</div>';
+                return;
+            }
+            
+            console.log(`Found ${elements.length} elements to display`);
+            
+            // Place elements in the grid
+            elements.forEach(element => {
+                const {row, col} = element.position;
+                grid[row][col] = element;
+            });
+            
+            // Generate the HTML
+            for (let row = 1; row <= 9; row++) {
+                for (let col = 1; col <= 18; col++) {
+                    const element = grid[row][col];
+                    
+                    if (element) {
+                        const elementDiv = document.createElement('div');
+                        elementDiv.className = `element ${element.category}`;
+                        elementDiv.style.gridRow = row;
+                        elementDiv.style.gridColumn = col;
+                        elementDiv.innerHTML = `
+                            <div class="number">${element.number}</div>
+                            <div class="symbol">${element.symbol}</div>
+                            <div class="name">${element.name}</div>
+                        `;
+                        
+                        // Add click event to show details
+                        elementDiv.addEventListener('click', () => {
+                            showElementDetails(element);
+                        });
+                        
+                        periodicTable.appendChild(elementDiv);
+                    }
+                }
+            }
+        }
+        
+        // Show element details
+        function showElementDetails(element) {
+            console.log("Showing details for:", element.name);
+            const detailsElement = document.querySelector('.element-details');
+            if (!detailsElement) {
+                console.error("Element details container not found");
+                return;
+            }
+            
+            try {
+                detailsElement.querySelector('.element-details-symbol').textContent = element.symbol;
+                detailsElement.querySelector('.element-details-symbol').className = `element-details-symbol ${element.category}`;
+                detailsElement.querySelector('.element-details-title').childNodes[1].textContent = element.name;
+                detailsElement.querySelector('.element-details-atomic-number').textContent = element.number;
+                detailsElement.querySelector('.element-details-atomic-mass').textContent = `${element.mass} u`;
+                detailsElement.querySelector('.element-details-electron-config').textContent = element.electron;
+                detailsElement.querySelector('.element-details-category').textContent = element.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                detailsElement.querySelector('.element-details-state').textContent = element.state;
+                detailsElement.querySelector('.element-details-melting').textContent = element.melting !== null ? `${element.melting} °C` : 'Unknown';
+                detailsElement.querySelector('.element-details-boiling').textContent = element.boiling !== null ? `${element.boiling} °C` : 'Unknown';
+                
+                detailsElement.style.display = 'block';
+            } catch (e) {
+                console.error("Error displaying element details:", e);
+            }
+        }
+    </script>
+</body>
+</html>
